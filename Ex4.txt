@@ -1,0 +1,16 @@
+# Program demonstruje użycie zmiennych, funkcji type() i print()
+
+# Definiowanie zmiennych o różnych typach
+liczba_calkowita = 23  # Zmienna typu integer
+tekst_powitalny = "Witaj w świecie Pythona!" # Zmienna typu string
+prawda_czy_falsz = True # Zmienna typu boolean
+
+# Wyświetlanie wartości zmiennych i ich typów
+print("Wartość zmiennej 'liczba_calkowita':", liczba_calkowita)
+print("Typ zmiennej 'liczba_calkowita':", type(liczba_calkowita))
+
+print("Wartość zmiennej 'tekst_powitalny':", tekst_powitalny)
+print("Typ zmiennej 'tekst_powitalny':", type(tekst_powitalny))
+
+print("Wartość zmiennej 'prawda_czy_falsz':", prawda_czy_falsz)
+print("Typ zmiennej 'prawda_czy_falsz':", type(prawda_czy_falsz))

@@ -1,0 +1,28 @@
+sekwencja_dna_lista = ['A', 'T', 'G', 'C', 'A', 'T', 'G', 'G']
+zasady_azotowe_krotka = ('Adenina', 'Tymina', 'Cytozyna', 'Guanina')
+
+print(f"Początkowa lista DNA: {sekwencja_dna_lista}")
+print(f"Krotka zasad azotowych: {zasady_azotowe_krotka}\n")
+
+print("Pierwszy i ostatni element:")
+print(f"  Listy (pierwszy): {sekwencja_dna_lista[0]}")
+print(f"  Listy (ostatni): {sekwencja_dna_lista[-1]}")
+print(f"  Krotki (pierwszy): {zasady_azotowe_krotka[0]}")
+print(f"  Krotki (ostatni): {zasady_azotowe_krotka[-1]}\n")
+
+sekwencja_dna_lista[3] = 'T' # Zmiana czwartego elementu (indeks 3) z 'C' na 'T'
+print(f"Lista DNA po modyfikacji elementu na indeksie 3: {sekwencja_dna_lista}\n")
+
+sekwencja_dna_lista.append('C')
+print(f"Lista DNA po dodaniu elementu 'C' metodą append(): {sekwencja_dna_lista}\n")
+
+print("Elementy listy DNA (iteracja pętlą for):")
+for nukleotyd in sekwencja_dna_lista:
+    print(nukleotyd)
+
+print("\nElementy krotki zasad azotowych (iteracja pętlą for):")
+for zasada in zasady_azotowe_krotka:
+    print(zasada)
+
+sekwencja_rna_lista = [nukleotyd if nukleotyd != 'T' else 'U' for nukleotyd in sekwencja_dna_lista]
+print(f"\nNowa lista (sekwencja RNA) utworzona za pomocą list comprehension:\n{sekwencja_rna_lista}")

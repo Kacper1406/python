@@ -1,0 +1,11 @@
+sekwencja_dna_str = "ATGCGTACGT"
+
+print(f"Sekwencja DNA (string): {sekwencja_dna_str}, Typ: {type(sekwencja_dna_str)}")
+
+sekwencja_dna_list = list(sekwencja_dna_str)
+
+print(f"Sekwencja DNA (lista): {sekwencja_dna_list}, Typ: {type(sekwencja_dna_list)}")
+
+print("\nIteracja po sekwencji DNA (lista) za pomocą range():")
+for i in range(len(sekwencja_dna_list)):
+    print(f"Nukleotyd na pozycji {i}: {sekwencja_dna_list[i]}")

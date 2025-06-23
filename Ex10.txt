@@ -1,0 +1,81 @@
+def charakterystyka_bialka(sekwencja_bialka, masa, pl):
+    """
+    Funkcja zwraca sformatowany tekst opisujący białko.
+
+    Argumenty:
+    sekwencja_bialka (str): Sekwencja aminokwasowa białka.
+    masa (float/int): Masa białka.
+    pl (float): Punkt izoelektryczny białka.
+
+    Zwraca:
+    str: Sformatowany tekst z charakterystyką białka.
+    """
+    return (f"Charakterystyka Białka:\n"
+            f"  Sekwencja: {sekwencja_bialka}\n"
+            f"  Masa: {masa} Da\n"
+            f"  Punkt Izoelektryczny (pI): {pl:.2f}") # Formatowanie pI do 2 miejsc po przecinku
+
+def sumuj_cechy_bialek(**kwargs):
+    """
+    Funkcja przyjmuje dowolną liczbę nazwanych cech białek (masa, pl)
+    i zwraca sumę mas oraz średnią punktu izoelektrycznego.
+
+    Argumenty:
+    **kwargs: Arbitralne argumenty klucz-wartość, gdzie klucze to nazwy białek,
+              a wartości to słowniki zawierające 'masa' i 'pl'.
+              Przykład: bialko1={'masa': 100, 'pl': 7.2}
+
+    Zwraca:
+    tuple: Krotka zawierająca sumę mas i średnią pI.
+           Zwraca (0, 0) jeśli brak danych.
+    """
+    suma_mas = 0
+    suma_pl = 0
+    liczba_bialek = 0
+
+    for nazwa_bialka, cechy_bialka in kwargs.items():
+        if 'masa' in cechy_bialka:
+            suma_mas += cechy_bialka['masa']
+        if 'pl' in cechy_bialka:
+            suma_pl += cechy_bialka['pl']
+            liczba_bialek += 1
+
+    srednia_pl = suma_pl / liczba_bialek if liczba_bialek > 0 else 0
+
+    return suma_mas, srednia_pl
+
+
+print("--- Charakterystyka Pojedynczego Białka ---")
+opis_bialka1 = charakterystyka_bialka(sekwencja_bialka="ATGCGT", masa=1500.5, pl=6.85)
+print(opis_bialka1)
+print("-" * 40 + "\n")
+
+opis_bialka2 = charakterystyka_bialka(masa=2345.7, pl=8.10, sekwencja_bialka="GCATGCAT")
+print(opis_bialka2)
+print("-" * 40 + "\n")
+
+print("--- Sumowanie Cech Wielu Białek ---")
+bialko_a = {'masa': 1200, 'pl': 5.5}
+bialko_b = {'masa': 2500, 'pl': 7.1}
+bialko_c = {'masa': 900, 'pl': 6.8}
+
+suma_mas_i_srednia_pl = sumuj_cechy_bialek(
+    BialkoA=bialko_a,
+    BialkoB=bialko_b,
+    BialkoC=bialko_c
+)
+
+print(f"Suma mas wszystkich białek: {suma_mas_i_srednia_pl[0]} Da")
+print(f"Średnia punktów izoelektrycznych: {suma_mas_i_srednia_pl[1]:.2f}\n") # Formatowanie do 2 miejsc po przecinku
+
+print("--- Sumowanie Cech Mniejszej Liczby Białek ---")
+bialko_x = {'masa': 5000, 'pl': 9.2}
+bialko_y = {'masa': 1500} # Brak pl dla białka Y
+
+suma_mas_i_srednia_pl_2 = sumuj_cechy_bialek(
+    BialkoX=bialko_x,
+    BialkoY=bialko_y
+)
+
+print(f"Suma mas białek X i Y: {suma_mas_i_srednia_pl_2[0]} Da")
+print(f"Średnia punktów izoelektrycznych (tylko z dostępnych pI): {suma_mas_i_srednia_pl_2[1]:.2f}")

@@ -1,0 +1,55 @@
+unikalne_nukleotydy = {'A', 'T', 'G', 'C'}
+
+informacje_o_genach = {
+    "BRCA1": "Naprawa DNA",
+    "TP53": "Supresja nowotworowa",
+    "CFTR": "Regulacja transportu jonów"
+}
+
+print("Początkowy zbiór nukleotydów:", unikalne_nukleotydy)
+print("Początkowy słownik genów:", informacje_o_genach, "\n")
+
+unikalne_nukleotydy.add('U') # Dodanie Uracylu (np. w kontekście RNA)
+informacje_o_genach["APP"] = "Produkcja białka amyloidu" # Dodanie nowego genu
+
+print("Zbiór nukleotydów po dodaniu 'U':", unikalne_nukleotydy)
+print("Słownik genów po dodaniu 'APP':", informacje_o_genach, "\n")
+
+czy_t_istnieje = 'T' in unikalne_nukleotydy
+czy_brca1_istnieje = "BRCA1" in informacje_o_genach
+
+print(f"Czy 'T' istnieje w zbiorze nukleotydów? {czy_t_istnieje}")
+print(f"Czy 'BRCA1' istnieje jako klucz w słowniku genów? {czy_brca1_istnieje}\n")
+
+unikalne_nukleotydy.discard('A') # Usuwa 'A' jeśli istnieje, bez błędu jeśli nie
+
+print("Zbiór nukleotydów po usunięciu 'A':", unikalne_nukleotydy, "\n")
+
+print("Zawartość słownika genów (klucz: wartość):")
+for gen, funkcja in informacje_o_genach.items():
+    print(f"  {gen}: {funkcja}")
+print("")
+
+if len(unikalne_nukleotydy) > 3:
+    print(f"Zbiór nukleotydów zawiera {len(unikalne_nukleotydy)} elementy, czyli więcej niż 3.\n")
+else:
+    print(f"Zbiór nukleotydów zawiera {len(unikalne_nukleotydy)} elementy, czyli 3 lub mniej.\n")
+
+szukany_gen = "TP53"
+if szukany_gen in informacje_o_genach:
+    print(f"Klucz '{szukany_gen}' istnieje w słowniku. Jego wartość to: {informacje_o_genach[szukany_gen]}\n")
+else:
+    print(f"Klucz '{szukany_gen}' nie istnieje w słowniku.\n")
+
+szukany_gen_nieistniejacy = "GABRA1"
+if szukany_gen_nieistniejacy in informacje_o_genach:
+    print(f"Klucz '{szukany_gen_nieistniejacy}' istnieje w słowniku. Jego wartość to: {informacje_o_genach[szukany_gen_nieistniejacy]}\n")
+else:
+    print(f"Klucz '{szukany_gen_nieistniejacy}' nie istnieje w słowniku.\n")
+
+zbiory_dodatkowe_nukleotydy = {'C', 'T', 'X', 'Y'} # Dodatkowy zbiór z potencjalnymi nowymi/innymi elementami
+polaczone_nukleotydy = unikalne_nukleotydy.union(zbiory_dodatkowe_nukleotydy)
+
+print("Początkowy zbiór nukleotydów (po zmianach):", unikalne_nukleotydy)
+print("Dodatkowy zbiór nukleotydów:", zbiory_dodatkowe_nukleotydy)
+print("Połączone zbiory nukleotydów (union):", polaczone_nukleotydy)

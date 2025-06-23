@@ -1,0 +1,76 @@
+1) main_program.py
+
+import os
+import datetime
+import biologia
+
+
+def main():
+    katalog_docelowy = "dane_bio"
+    plik_wynikowy = os.path.join(katalog_docelowy, "nukleotydy.txt")
+
+    sekwencja_do_zliczenia = "AGCTTAGCTAAGGCT"
+
+    print(f"Tworzenie katalogu: {katalog_docelowy}")
+    try:
+        os.makedirs(katalog_docelowy, exist_ok=True)
+        print(f"Katalog '{katalog_docelowy}' został utworzony lub już istnieje.\n")
+    except OSError as e:
+        print(f"Błąd podczas tworzenia katalogu '{katalog_docelowy}': {e}")
+        return
+
+    print("--- Wynik funkcji opis_komorki() ---")
+    print(biologia.opis_komorki())
+    print("-" * 40 + "\n")
+
+    print(f"Zliczanie nukleotydów dla sekwencji: '{sekwencja_do_zliczenia}'")
+    liczniki_nukleotydow = biologia.licz_nukleotydy(sekwencja_do_zliczenia)
+
+    aktualny_czas = datetime.datetime.now()
+    czas_formatowany = aktualny_czas.strftime("%Y-%m-%d %H:%M:%S")
+
+    print(f"Zapisywanie wyników do pliku: {plik_wynikowy}")
+    try:
+        with open(plik_wynikowy, 'w') as f:
+            f.write(f"Wyniki zliczenia nukleotydów dla sekwencji '{sekwencja_do_zliczenia}':\n")
+            for nukleotyd, ilosc in liczniki_nukleotydow.items():
+                f.write(f"{nukleotyd}: {ilosc}\n")
+            f.write(f"\nCzas utworzenia pliku: {czas_formatowany}\n")
+        print(f"Pomyślnie zapisano wyniki do pliku '{plik_wynikowy}'.")
+    except IOError as e:
+        print(f"Błąd zapisu do pliku '{plik_wynikowy}': {e}")
+    except Exception as e:
+        print(f"Wystąpił nieoczekiwany błąd podczas zapisu: {e}")
+
+
+if __name__ == "__main__":
+    main()
+
+
+2) biologia.py
+
+from collections import Counter
+
+
+def opis_komorki():
+    return "Komórka to podstawowa jednostka życia."
+
+
+def licz_nukleotydy(sekwencja_dna):
+    sekwencja_dna = sekwencja_dna.upper()
+
+    dozwolone_nukleotydy = "ATCG"
+    liczniki = Counter(char for char in sekwencja_dna if char in dozwolone_nukleotydy)
+
+    wynik = {nukleotyd: liczniki.get(nukleotyd, 0) for nukleotyd in dozwolone_nukleotydy}
+
+    return wynik
+
+
+if __name__ == "__main__":
+    print("Testowanie funkcji z modułu biologia.py:")
+    print(opis_komorki())
+    sekw_test = "AATTCCGGGTAA"
+    print(f"Zliczanie nukleotydów w '{sekw_test}': {licz_nukleotydy(sekw_test)}")
+    sekw_test_zla = "ATGCX"
+    print(f"Zliczanie nukleotydów w '{sekw_test_zla}': {licz_nukleotydy(sekw_test_zla)}")

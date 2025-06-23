@@ -1,0 +1,62 @@
+import pandas as pd
+import numpy as np
+import os
+
+print("--- Przykład PYTHON_15: Analiza Danych Ekspresji Genów za pomocą Pandas ---\n")
+
+dane = {
+    'Gen': ['GenA', 'GenB', 'GenC', 'GenD'],
+    'Proba1': [5.1, 2.3, np.nan, 4.4],
+    'Proba2': [3.2, 4.5, 3.9, np.nan],
+    'Proba3': [6.3, 5.6, np.nan, 6.6]
+}
+
+df = pd.DataFrame(dane)
+
+print("Początkowy DataFrame ekspresji genów:")
+print(df)
+print("\n" + "=" * 50 + "\n")
+
+
+print("Sprawdzenie, które wartości są brakujące (NaN):")
+print(df.isnull())
+print("\n" + "-" * 50 + "\n")
+
+df_bez_nan = df.dropna()
+print("DataFrame po usunięciu wierszy z brakującymi danymi (NaN):")
+print(df_bez_nan)
+print("\n" + "-" * 50 + "\n")
+
+df_uzupelniony = df.copy()
+
+srednie_dla_uzupelnienia = df_uzupelniony[['Proba1', 'Proba2', 'Proba3']].mean()
+df_uzupelniony = df_uzupelniony.fillna(srednie_dla_uzupelnienia)
+
+print("DataFrame po uzupełnieniu brakujących danych (NaN) średnią kolumny:")
+print(df_uzupelniony)
+print("\n" + "=" * 50 + "\n")
+
+
+dane_gena = df_uzupelniony.loc[df_uzupelniony['Gen'] == 'GenA']
+print("Dane dotyczące genu 'GenA':")
+print(dane_gena)
+print("\n" + "-" * 50 + "\n")
+
+srednia_ekspresja_na_probe = df_uzupelniony[['Proba1', 'Proba2', 'Proba3']].mean()
+print("Średnia ekspresja dla każdej próbki (kolumny) po uzupełnieniu NaN:")
+print(srednia_ekspresja_na_probe)
+print("\n" + "-" * 50 + "\n")
+
+geny_filtr_proba1 = df_uzupelniony[df_uzupelniony['Proba1'] > 4]
+print("Geny, których ekspresja w 'Proba1' wynosi więcej niż 4:")
+print(geny_filtr_proba1)
+print("\n" + "=" * 50 + "\n")
+
+
+nazwa_pliku_csv = "wynik.csv"
+try:
+    df_uzupelniony.to_csv(nazwa_pliku_csv, index=False)
+    print(f"DataFrame został pomyślnie zapisany do pliku '{nazwa_pliku_csv}' bez indeksów.")
+    print(f"Plik '{nazwa_pliku_csv}' znajduje się w katalogu: {os.getcwd()}")
+except Exception as e:
+    print(f"Wystąpił błąd podczas zapisu pliku CSV: {e}")

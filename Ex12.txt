@@ -1,0 +1,55 @@
+import os
+
+class NieprawidlowaSekwencjaDNA(Exception):
+    pass
+
+def czytaj_i_zapisz_sekwencje():
+    nazwa_pliku_wejsciowego = "sekwencje.txt"
+    nazwa_pliku_wyjsciowego = "nowa_sekwencja.txt"
+
+    print(f"Próba odczytu sekwencji z pliku: {nazwa_pliku_wejsciowego}")
+    try:
+        with open(nazwa_pliku_wejsciowego, 'r') as plik:
+            zawartosc_pliku = plik.read()
+            print(f"Zawartość pliku '{nazwa_pliku_wejsciowego}':\n{zawartosc_pliku}\n")
+    except FileNotFoundError:
+        print(f"Błąd: Plik '{nazwa_pliku_wejsciowego}' nie został znaleziony. Upewnij się, że plik istnieje w tym samym katalogu co skrypt.\n")
+        zawartosc_pliku = None
+
+    nowa_sekwencja = None
+    while nowa_sekwencja is None:
+        try:
+            wejscie_uzytkownika = input("Podaj nową sekwencję DNA (tylko A, T, C, G): ").upper()
+            dozwolone_znaki_dna = set('ATCG')
+
+            if not all(char in dozwolone_znaki_dna for char in wejscie_uzytkownika):
+                raise NieprawidlowaSekwencjaDNA("Sekwencja DNA może zawierać tylko litery A, T, C, G.")
+            if not wejscie_uzytkownika:
+                raise NieprawidlowaSekwencjaDNA("Sekwencja DNA nie może być pusta.")
+
+            nowa_sekwencja = wejscie_uzytkownika
+            print("Sekwencja zaakceptowana.\n")
+
+        except NieprawidlowaSekwencjaDNA as e:
+            print(f"Błąd walidacji sekwencji: {e}. Spróbuj ponownie.")
+        except Exception as e:
+            print(f"Wystąpił nieoczekiwany błąd podczas pobierania danych: {e}. Spróbuj ponownie.")
+
+
+    print(f"Próba zapisu nowej sekwencji do pliku: {nazwa_pliku_wyjsciowego}")
+    try:
+        with open(nazwa_pliku_wyjsciowego, 'w') as plik:
+            plik.write(nowa_sekwencja)
+        print(f"Pomyślnie zapisano nową sekwencję do pliku '{nazwa_pliku_wyjsciowego}'.")
+    except IOError as e:
+        print(f"Błąd zapisu do pliku '{nazwa_pliku_wyjsciowego}': {e}")
+    except Exception as e:
+        print(f"Wystąpił nieoczekiwany błąd podczas zapisu danych: {e}")
+
+if __name__ == "__main__":
+    if not os.path.exists("sekwencje.txt"):
+        with open("sekwencje.txt", "w") as f:
+            f.write("ATGCATGCATGC")
+        print("Utworzono plik 'sekwencje.txt' z przykładową zawartością dla celów testowych.\n")
+
+    czytaj_i_zapisz_sekwencje()

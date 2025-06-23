@@ -1,0 +1,90 @@
+from Bio import Entrez
+from Bio import SeqIO
+
+from Bio import Align
+import requests
+import io
+
+def get_sequences_from_genbank(ids):
+
+    Entrez.email = "your.email@example.com"  # Nalezy podac wlasny email
+
+    base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+    params = {
+        "db": "nucleotide",
+        "id": ",".join(ids),
+        "rettype": "fasta",
+        "retmode": "text",
+        "tool": "biopython_script",
+        "email": Entrez.email
+    }
+
+    print("OSTRZEŻENIE: Wyłączono weryfikację SSL dla tego zapytania!")
+    try:
+        response = requests.get(base_url, params=params, verify=False)
+        response.raise_for_status()
+
+        fasta_content = io.StringIO(response.text)
+        records = list(SeqIO.parse(fasta_content, "fasta"))
+        return records
+    except requests.exceptions.RequestException as e:
+        print(f"Błąd podczas pobierania danych za pomocą requests: {e}")
+        return []
+
+def save_sequences_to_fasta(sequences, filename):
+    with open(filename, "w") as output_handle:
+        SeqIO.write(sequences, output_handle, "fasta")
+
+def perform_needleman_wunsch(seq1, seq2):
+    aligner = Align.PairwiseAligner()
+    aligner.mode = 'global'
+    aligner.match_score = 2
+    aligner.mismatch_score = -1
+    aligner.open_gap_score = -5
+    aligner.extend_gap_score = -0.5
+    alignments = aligner.align(seq1, seq2)
+    return list(alignments)
+
+if __name__ == "__main__":
+    genbank_ids = ["JX669568", "JX669571"]
+    print(f"Pobieranie sekwencji z GenBanku dla ID: {genbank_ids}...")
+    try:
+        downloaded_sequences = get_sequences_from_genbank(genbank_ids)
+        if not downloaded_sequences: # Sprawdź, czy lista nie jest pusta po błędzie
+            raise ValueError("Nie udało się pobrać żadnych sekwencji.")
+        if len(downloaded_sequences) != 2:
+            raise ValueError("Nie udało się pobrać dokładnie dwóch sekwencji.")
+        print("Pobrano sekwencje:")
+        for seq_rec in downloaded_sequences:
+            print(f"- ID: {seq_rec.id}, Długość: {len(seq_rec.seq)}")
+
+        seq_record1 = downloaded_sequences[0]
+        seq_record2 = downloaded_sequences[1]
+
+        fasta_filename = "sequences.fasta"
+        print(f"\nZapisywanie sekwencji do pliku '{fasta_filename}'...")
+        save_sequences_to_fasta(downloaded_sequences, fasta_filename)
+        print("Sekwencje zapisane pomyślnie.")
+
+        print(f"\nWczytywanie sekwencji z pliku '{fasta_filename}'...")
+        loaded_sequences = list(SeqIO.parse(fasta_filename, "fasta"))
+        if len(loaded_sequences) != 2:
+            raise ValueError(f"Oczekiwano dwóch sekwencji w pliku '{fasta_filename}', znaleziono {len(loaded_sequences)}.")
+
+        loaded_seq1 = loaded_sequences[0].seq
+        loaded_seq2 = loaded_sequences[1].seq
+        print("Sekwencje wczytane pomyślnie z pliku.")
+
+        print("\nWykonywanie dopasowania globalnego algorytmem Needleman-Wunsch (używając Bio.Align.PairwiseAligner)...")
+        alignments = perform_needleman_wunsch(loaded_seq1, loaded_seq2)
+
+        if alignments:
+            best_alignment = alignments[0]
+            print("\nNajlepsze dopasowanie (Needleman-Wunsch):")
+            print(best_alignment)
+            print(f"Punktacja dopasowania: {best_alignment.score}")
+        else:
+            print("Nie znaleziono żadnych dopasowań.")
+
+    except Exception as e:
+        print(f"Wystąpił błąd: {e}")

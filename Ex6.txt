@@ -1,0 +1,16 @@
+sekwencja_dna1 = "ATGCGCAT"
+sekwencja_dna2 = "GTACGTACGTAC"
+
+pelna_sekwencja = sekwencja_dna1 + sekwencja_dna2
+print(f"Pełna sekwencja DNA (po konkatenacji):\n{pelna_sekwencja}\n")
+
+fragment_sekwencji = pelna_sekwencja[4:9]
+print(f"Wycięty fragment sekwencji (indeksy 4 do 9):\n{fragment_sekwencji}\n")
+
+liczba_g = pelna_sekwencja.count('G')
+
+pozycja_tac = pelna_sekwencja.find('TAC')
+
+wynik_analizy = f"Analiza pełnej sekwencji DNA:\n\tDługość: {len(pelna_sekwencja)}\n\tLiczba 'G': {liczba_g}\n\tPierwsze wystąpienie 'TAC' na pozycji: {pozycja_tac}"
+
+print(wynik_analizy)

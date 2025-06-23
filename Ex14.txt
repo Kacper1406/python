@@ -1,0 +1,45 @@
+import numpy as np
+
+print("--- Przykład PYTHON_14: Analiza Ekspresji Genów za pomocą NumPy ---\n")
+
+macierz_ekspresji = np.array([
+    [5.0, 2.5, 7.0],
+    [3.2, 4.0, 6.0],
+    [8.1, 9.3, 2.5],
+    [4.5, 5.7, 6.9]
+])
+
+print("Początkowa macierz ekspresji genów:\n", macierz_ekspresji)
+print("-" * 50 + "\n")
+
+macierz_ekspresji_zwiekszona = macierz_ekspresji * 1.05
+print("Macierz ekspresji po zwiększeniu o 5%:\n", macierz_ekspresji_zwiekszona)
+print("-" * 50 + "\n")
+
+srednia_ekspresja_na_gen = np.mean(macierz_ekspresji, axis=1)
+print("Średnia ekspresja dla każdego genu:\n", srednia_ekspresja_na_gen)
+for i, srednia in enumerate(srednia_ekspresja_na_gen):
+    print(f"  Gen {i+1}: {srednia:.2f}")
+print("-" * 50 + "\n")
+
+suma_ekspresji_na_probe = np.sum(macierz_ekspresji, axis=0)
+print("Suma ekspresji genów dla każdej próby:\n", suma_ekspresji_na_probe)
+
+for i, suma in enumerate(suma_ekspresji_na_probe):
+    print(f"  Próba {i+1}: {suma:.2f}")
+print("-" * 50 + "\n")
+
+
+macierz_ekspresji_z_nan = macierz_ekspresji.copy()
+macierz_ekspresji_z_nan[0, 1] = np.nan
+macierz_ekspresji_z_nan[2, 0] = np.nan
+macierz_ekspresji_z_nan[3, 2] = np.nan
+
+print("Macierz ekspresji po wprowadzeniu wartości NaN:\n", macierz_ekspresji_z_nan)
+print("-" * 50 + "\n")
+
+srednia_ekspresja_na_gen_z_nan = np.nanmean(macierz_ekspresji_z_nan, axis=1)
+print("Średnia ekspresja dla każdego genu (ignorując NaN):\n", srednia_ekspresja_na_gen_z_nan)
+for i, srednia in enumerate(srednia_ekspresja_na_gen_z_nan):
+    print(f"  Gen {i+1}: {srednia:.2f}")
+print("-" * 50 + "\n")

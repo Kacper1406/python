@@ -1,0 +1,99 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import os
+
+print("--- Przykład PYTHON_16: Wizualizacja Danych Ekspresji Genów za pomocą Matplotlib ---\n")
+
+proby = ['Proba1', 'Proba2', 'Proba3']
+ekspresja = np.array([
+    [5.1, 2.3, 7.8],
+    [3.2, 4.5, 6.1],
+    [4.8, 5.5, 3.9]
+])
+geny = ['GenA', 'GenB', 'GenC']
+
+df_ekspresji = pd.DataFrame(ekspresja, index=geny, columns=proby)
+
+print("DataFrame z danymi ekspresji genów:")
+print(df_ekspresji)
+print("\n" + "=" * 50 + "\n")
+
+
+plt.figure(figsize=(10, 6))
+
+for i, gen_name in enumerate(df_ekspresji.index):
+    plt.plot(df_ekspresji.columns, df_ekspresji.loc[gen_name],
+             marker='o', label=gen_name)
+
+plt.title('Zmiany Ekspresji Genów w Próbkach')
+plt.xlabel('Próba')
+plt.ylabel('Poziom Ekspresji')
+plt.legend(title='Gen')
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+print("Wygenerowano wykres liniowy: Zmiany Ekspresji Genów w Próbkach.")
+print("\n" + "-" * 50 + "\n")
+
+plt.figure(figsize=(12, 7))
+
+x = np.arange(len(proby))
+width = 0.25
+
+for i, gen_name in enumerate(df_ekspresji.index):
+    plt.bar(x + i * width - width, df_ekspresji.loc[gen_name], width, label=gen_name)
+
+plt.title('Porównanie Ekspresji Genów w Próbkach')
+plt.xlabel('Próba')
+plt.ylabel('Poziom Ekspresji')
+plt.xticks(x, proby)
+plt.legend(title='Gen')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+print("Wygenerowano wykres słupkowy: Porównanie Ekspresji Genów w Próbkach.")
+print("\n" + "-" * 50 + "\n")
+
+
+plt.figure(figsize=(8, 8))
+
+exp_genA = df_ekspresji.loc['GenA']
+exp_genB = df_ekspresji.loc['GenB']
+
+plt.scatter(exp_genA, exp_genB, s=100, alpha=0.7, color='purple')
+plt.title('Wykres Rozrzutu: Ekspresja GenA vs GenB')
+plt.xlabel('Ekspresja GenA')
+plt.ylabel('Ekspresja GenB')
+plt.grid(True, linestyle='--', alpha=0.7)
+
+for i, txt in enumerate(proby):
+    plt.annotate(txt, (exp_genA.iloc[i], exp_genB.iloc[i]), textcoords="offset points", xytext=(0,10), ha='center')
+
+plt.tight_layout()
+plt.show()
+print("Wygenerowano wykres rozrzutu: Ekspresja GenA vs GenB.")
+print("\n" + "=" * 50 + "\n")
+
+
+nazwa_pliku_wykresu = "ekspresja_genow.png"
+
+plt.figure(figsize=(10, 6))
+for i, gen_name in enumerate(df_ekspresji.index):
+    plt.plot(df_ekspresji.columns, df_ekspresji.loc[gen_name],
+             marker='o', label=gen_name)
+plt.title('Zmiany Ekspresji Genów w Próbkach')
+plt.xlabel('Próba')
+plt.ylabel('Poziom Ekspresji')
+plt.legend(title='Gen')
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+
+try:
+    plt.savefig(nazwa_pliku_wykresu)
+    print(f"Wykres liniowy został pomyślnie zapisany jako '{nazwa_pliku_wykresu}'.")
+    print(f"Plik '{nazwa_pliku_wykresu}' znajduje się w katalogu: {os.getcwd()}")
+except Exception as e:
+    print(f"Wystąpił błąd podczas zapisu wykresu: {e}")
+
+plt.close()

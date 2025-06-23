@@ -1,0 +1,65 @@
+dlugosc_sekwencji = 15
+czy_sekwencja_dluga = (dlugosc_sekwencji > 10) # True
+czy_zawiera_adenine = ('A' in "ATGCGTA") # True
+czy_proces_zakonczony = False # Bezpośrednie przypisanie
+
+print(f"Zmienne boolean:")
+print(f"  czy_sekwencja_dluga: {czy_sekwencja_dluga} (Typ: {type(czy_sekwencja_dluga)})")
+print(f"  czy_zawiera_adenine: {czy_zawiera_adenine} (Typ: {type(czy_zawiera_adenine)})")
+print(f"  czy_proces_zakonczony: {czy_proces_zakonczony} (Typ: {type(czy_proces_zakonczony)})\n")
+
+pusty_string = ""
+niepusty_string = "DNA"
+pusta_lista = []
+niepusta_lista = [1, 2, 3]
+liczba_zero = 0
+liczba_niezerowa = 100
+
+print(f"Sprawdzanie pustych/niepustych zmiennych za pomocą bool():")
+print(f"  bool(pusty_string) ('{pusty_string}'): {bool(pusty_string)}")
+print(f"  bool(niepusty_string) ('{niepusty_string}'): {bool(niepusty_string)}")
+print(f"  bool(pusta_lista) ({pusta_lista}): {bool(pusta_lista)}")
+print(f"  bool(niepusta_lista) ({niepusta_lista}): {bool(niepusta_lista)}")
+print(f"  bool(liczba_zero) ({liczba_zero}): {bool(liczba_zero)}")
+print(f"  bool(liczba_niezerowa) ({liczba_niezerowa}): {bool(liczba_niezerowa)}\n")
+
+a = 25
+b = 7
+
+suma = a + b
+roznica = a - b
+iloczyn = a * b
+iloraz_calkowity = a // b # Dzielenie całkowite
+reszta_z_dzielenia = a % b # Reszta z dzielenia (modulo)
+
+print(f"Operacje arytmetyczne na liczbach (a={a}, b={b}):")
+print(f"  Suma (a + b): {suma}")
+print(f"  Różnica (a - b): {roznica}")
+print(f"  Iloczyn (a * b): {iloczyn}")
+print(f"  Iloraz całkowity (a // b): {iloraz_calkowity}")
+print(f"  Reszta z dzielenia (a % b): {reszta_z_dzielenia}\n")
+
+x = 10
+print(f"Początkowa wartość x: {x}")
+x += 5  # x = x + 5
+print(f"x po x += 5: {x}")
+x *= 2  # x = x * 2
+print(f"x po x *= 2: {x}\n")
+
+val1 = 15
+val2 = 20
+val3 = 15
+sekwencja1 = "AGCT"
+sekwencja2 = "AGCT"
+sekwencja3 = "TGCA"
+
+print(f"Operatory porównania (val1={val1}, val2={val2}, val3={val3}):")
+print(f"  val1 == val2: {val1 == val2}") # Czy równe? False
+print(f"  val1 != val2: {val1 != val2}") # Czy różne? True
+print(f"  val1 < val2: {val1 < val2}")   # Czy mniejsze? True
+print(f"  val1 >= val3: {val1 >= val3}") # Czy większe lub równe? True
+print(f"  val2 > val3: {val2 > val3}")   # Czy większe? True
+
+print(f"\nOperatory porównania dla stringów:")
+print(f"  sekwencja1 ('{sekwencja1}') == sekwencja2 ('{sekwencja2}'): {sekwencja1 == sekwencja2}") # True
+print(f"  sekwencja1 ('{sekwencja1}') != sekwencja3 ('{sekwencja3}'): {sekwencja1 != sekwencja3}") # True

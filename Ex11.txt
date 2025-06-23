@@ -1,0 +1,42 @@
+class Organizm:
+    def __init__(self, nazwa, rodzaj):
+        self.nazwa = nazwa
+        self.rodzaj = rodzaj
+
+    def opis(self):
+        return f"Organizm: {self.nazwa}, Rodzaj: {self.rodzaj}"
+
+    @staticmethod
+    def transkrybuj(sekwencja_dna):
+        return sekwencja_dna.replace('T', 'U')
+
+class Bakteria(Organizm):
+    def __init__(self, nazwa, rodzaj, kształt):
+        super().__init__(nazwa, rodzaj) # Wywołanie konstruktora klasy bazowej
+        self.kształt = kształt
+
+    def opis(self):
+        opis_bazowy = super().opis() # Pobranie opisu z klasy bazowej
+        return f"{opis_bazowy}, Kształt: {self.kształt}"
+
+print("--- Tworzenie instancji i wywoływanie metody opis ---")
+bakteria1 = Bakteria("Escherichia coli", "Bakterie Gram-ujemne", "pałeczka")
+bakteria2 = Bakteria("Staphylococcus aureus", "Bakterie Gram-dodatnie", "ziarniak")
+bakteria3 = Bakteria("Spirillum minus", "Bakterie spiralne", "spirala")
+
+print(bakteria1.opis())
+print(bakteria2.opis())
+print(bakteria3.opis())
+print("\n" + "="*50 + "\n")
+
+print("--- Użycie metody statycznej transkrybuj ---")
+sekwencja_dna_input = "ATGCGTAACGTAT"
+sekwencja_rna_output = Organizm.transkrybuj(sekwencja_dna_input)
+
+print(f"Sekwencja DNA: {sekwencja_dna_input}")
+print(f"Sekwencja RNA (po transkrypcji): {sekwencja_rna_output}")
+
+sekwencja_dna_input_2 = "GGGTTTAAA"
+sekwencja_rna_output_2 = Organizm.transkrybuj(sekwencja_dna_input_2)
+print(f"Sekwencja DNA: {sekwencja_dna_input_2}")
+print(f"Sekwencja RNA (po transkrypcji): {sekwencja_rna_output_2}")
