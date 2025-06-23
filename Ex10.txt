@@ -1,34 +1,10 @@
 def charakterystyka_bialka(sekwencja_bialka, masa, pl):
-    """
-    Funkcja zwraca sformatowany tekst opisujący białko.
-
-    Argumenty:
-    sekwencja_bialka (str): Sekwencja aminokwasowa białka.
-    masa (float/int): Masa białka.
-    pl (float): Punkt izoelektryczny białka.
-
-    Zwraca:
-    str: Sformatowany tekst z charakterystyką białka.
-    """
     return (f"Charakterystyka Białka:\n"
             f"  Sekwencja: {sekwencja_bialka}\n"
             f"  Masa: {masa} Da\n"
-            f"  Punkt Izoelektryczny (pI): {pl:.2f}") # Formatowanie pI do 2 miejsc po przecinku
+            f"  Punkt Izoelektryczny (pI): {pl:.2f}")
 
 def sumuj_cechy_bialek(**kwargs):
-    """
-    Funkcja przyjmuje dowolną liczbę nazwanych cech białek (masa, pl)
-    i zwraca sumę mas oraz średnią punktu izoelektrycznego.
-
-    Argumenty:
-    **kwargs: Arbitralne argumenty klucz-wartość, gdzie klucze to nazwy białek,
-              a wartości to słowniki zawierające 'masa' i 'pl'.
-              Przykład: bialko1={'masa': 100, 'pl': 7.2}
-
-    Zwraca:
-    tuple: Krotka zawierająca sumę mas i średnią pI.
-           Zwraca (0, 0) jeśli brak danych.
-    """
     suma_mas = 0
     suma_pl = 0
     liczba_bialek = 0
@@ -66,11 +42,11 @@ suma_mas_i_srednia_pl = sumuj_cechy_bialek(
 )
 
 print(f"Suma mas wszystkich białek: {suma_mas_i_srednia_pl[0]} Da")
-print(f"Średnia punktów izoelektrycznych: {suma_mas_i_srednia_pl[1]:.2f}\n") # Formatowanie do 2 miejsc po przecinku
+print(f"Średnia punktów izoelektrycznych: {suma_mas_i_srednia_pl[1]:.2f}\n")
 
 print("--- Sumowanie Cech Mniejszej Liczby Białek ---")
 bialko_x = {'masa': 5000, 'pl': 9.2}
-bialko_y = {'masa': 1500} # Brak pl dla białka Y
+bialko_y = {'masa': 1500}
 
 suma_mas_i_srednia_pl_2 = sumuj_cechy_bialek(
     BialkoX=bialko_x,

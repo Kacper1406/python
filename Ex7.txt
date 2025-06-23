@@ -54,12 +54,12 @@ sekwencja2 = "AGCT"
 sekwencja3 = "TGCA"
 
 print(f"Operatory porównania (val1={val1}, val2={val2}, val3={val3}):")
-print(f"  val1 == val2: {val1 == val2}") # Czy równe? False
-print(f"  val1 != val2: {val1 != val2}") # Czy różne? True
-print(f"  val1 < val2: {val1 < val2}")   # Czy mniejsze? True
-print(f"  val1 >= val3: {val1 >= val3}") # Czy większe lub równe? True
-print(f"  val2 > val3: {val2 > val3}")   # Czy większe? True
+print(f"  val1 == val2: {val1 == val2}") 
+print(f"  val1 != val2: {val1 != val2}") 
+print(f"  val1 < val2: {val1 < val2}")   
+print(f"  val1 >= val3: {val1 >= val3}") 
+print(f"  val2 > val3: {val2 > val3}")  
 
 print(f"\nOperatory porównania dla stringów:")
-print(f"  sekwencja1 ('{sekwencja1}') == sekwencja2 ('{sekwencja2}'): {sekwencja1 == sekwencja2}") # True
-print(f"  sekwencja1 ('{sekwencja1}') != sekwencja3 ('{sekwencja3}'): {sekwencja1 != sekwencja3}") # True
+print(f"  sekwencja1 ('{sekwencja1}') == sekwencja2 ('{sekwencja2}'): {sekwencja1 == sekwencja2}")
+print(f"  sekwencja1 ('{sekwencja1}') != sekwencja3 ('{sekwencja3}'): {sekwencja1 != sekwencja3}") 

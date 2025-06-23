@@ -9,8 +9,8 @@ informacje_o_genach = {
 print("Początkowy zbiór nukleotydów:", unikalne_nukleotydy)
 print("Początkowy słownik genów:", informacje_o_genach, "\n")
 
-unikalne_nukleotydy.add('U') # Dodanie Uracylu (np. w kontekście RNA)
-informacje_o_genach["APP"] = "Produkcja białka amyloidu" # Dodanie nowego genu
+unikalne_nukleotydy.add('U')
+informacje_o_genach["APP"] = "Produkcja białka amyloidu"
 
 print("Zbiór nukleotydów po dodaniu 'U':", unikalne_nukleotydy)
 print("Słownik genów po dodaniu 'APP':", informacje_o_genach, "\n")
@@ -21,7 +21,7 @@ czy_brca1_istnieje = "BRCA1" in informacje_o_genach
 print(f"Czy 'T' istnieje w zbiorze nukleotydów? {czy_t_istnieje}")
 print(f"Czy 'BRCA1' istnieje jako klucz w słowniku genów? {czy_brca1_istnieje}\n")
 
-unikalne_nukleotydy.discard('A') # Usuwa 'A' jeśli istnieje, bez błędu jeśli nie
+unikalne_nukleotydy.discard('A')
 
 print("Zbiór nukleotydów po usunięciu 'A':", unikalne_nukleotydy, "\n")
 
@@ -47,7 +47,7 @@ if szukany_gen_nieistniejacy in informacje_o_genach:
 else:
     print(f"Klucz '{szukany_gen_nieistniejacy}' nie istnieje w słowniku.\n")
 
-zbiory_dodatkowe_nukleotydy = {'C', 'T', 'X', 'Y'} # Dodatkowy zbiór z potencjalnymi nowymi/innymi elementami
+zbiory_dodatkowe_nukleotydy = {'C', 'T', 'X', 'Y'}
 polaczone_nukleotydy = unikalne_nukleotydy.union(zbiory_dodatkowe_nukleotydy)
 
 print("Początkowy zbiór nukleotydów (po zmianach):", unikalne_nukleotydy)
