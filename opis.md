@@ -1,4 +1,4 @@
-#Co ten program robi?#
+**Co ten program robi?**
 
 1.  **Tworzy magiczną książkę przepisów (plik FASTA):**
     Na początku programu, jeśli nie mamy jeszcze naszej "książki przepisów"
