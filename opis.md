@@ -1,4 +1,4 @@
-Co ten program robi?
+##Co ten program robi?
 
 1.  **Tworzy magiczną książkę przepisów (plik FASTA):**
     Na początku programu, jeśli nie mamy jeszcze naszej "książki przepisów"
@@ -66,7 +66,7 @@ Co ten program robi?
 
 7.  **Tworzy "Tabelę Wyników":**
     Wszystkie czyste, uporządkowane przepisy trafiają do specjalnej
-    "Tabeli Wyników" (nazywamy ją "DataFrame"). To taka super tabela,
+    "Tabeli Wyników" (nazywamy ją "DataFrame"). To taka tabela,
     w której każda linijka to jeden przepis, a kolumny to jego cechy
     (nazwa, długość, zawartość GC, typ). Ta tabela jest bardzo łatwa do
     analizowania. Program wyświetli ją całą na ekranie, abyś mógł ją zobaczyć.
