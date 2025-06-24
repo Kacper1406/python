@@ -4,52 +4,43 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-# --- Stałe konfiguracyjne programu ---
-FASTA_FILENAME = "sekwencje.txt"
-MIN_SEQUENCE_LENGTH = 50
-MAX_SEQUENCE_LENGTH = 199
+NAZWA_PLIKU_FASTA = "sekwencje.txt"
+MIN_DLUGOSC_SEKWENCJI = 50
+MAX_DLUGOSC_SEKWENCJI = 199
 
-# Liczba jawnie dodanych duplikatów dla celów testowych
-NUM_DUPLICATES_TO_ADD = 6
-# Liczba jawnie dodanych niepoprawnych sekwencji
-NUM_INVALID_TO_ADD = 6
+LICZBA_DUPLIKATOW_DO_DODANIA = 6
+LICZBA_NIEPOPRAWNYCH_DO_DODANIA = 6
 
-# Prawdopodobieństwo (od 0.0 do 1.0), że "normalna" sekwencja
-# również będzie zawierała przypadkowe nieprawidłowe znaki
-PROB_INCLUDE_RANDOM_INVALID_CHAR = 0.25
+PRAWDOPODOBIENSTWO_LOSOWYCH_NIEPRAWIDLOWYCH_ZNAKOW = 0.25
 
-# Zakres losowej liczby sekwencji generowanych w pliku FASTA
-MIN_RANDOM_SEQUENCES = 31
-MAX_RANDOM_SEQUENCES = 50
+MIN_LOSOWYCH_SEKWENCJI = 31
+MAX_LOSOWYCH_SEKWENCJI = 50
 
-# Wymagane minimum sekwencji w pliku dla komunikatu ostrzegawczego
-REQUIRED_MIN_SEQUENCES_FOR_MESSAGE = 30
+WYMAGANE_MIN_SEKWENCJI_DLA_OSTRZEZENIA = 30
 
-# Liczba sekwencji do wyświetlenia na początku
-DISPLAY_INITIAL_SEQUENCES_COUNT = 5
-# Liczba sekwencji do wyświetlenia szczegółowych informacji
-DISPLAY_USER_INFO_SEQUENCES_COUNT = 3
+LICZBA_WYSWIETLANYCH_POCZATKOWYCH_SEKWENCJI = 5
+LICZBA_WYSWIETLANYCH_INFO_SEKWENCJI_OD_UZYTKOWNIKA = 3
 
 
-class DNASequence:
+class SekwencjaDNA:
     """
     Reprezentuje pojedynczą sekwencję DNA z jej nazwą i danymi nukleotydowymi.
 
     Atrybuty:
-        name (str): Nazwa sekwencji (nagłówek FASTA).
-        sequence (str): Ciąg nukleotydów (ATCG).
+        nazwa (str): Nazwa sekwencji (nagłówek FASTA).
+        sekwencja (str): Ciąg nukleotydów (ATCG).
     """
 
-    def __init__(self, name: str, sequence: str):
+    def __init__(self, nazwa: str, sekwencja: str):
         """
-        Inicjalizuje obiekt DNASequence.
+        Inicjalizuje obiekt SekwencjaDNA.
 
         Args:
-            name (str): Nazwa sekwencji.
-            sequence (str): Ciąg znaków reprezentujących sekwencję DNA.
+            nazwa (str): Nazwa sekwencji.
+            sekwencja (str): Ciąg znaków reprezentujących sekwencję DNA.
         """
-        self.name = name.strip()
-        self.sequence = sequence.strip().upper()
+        self.nazwa = nazwa.strip()
+        self.sekwencja = sekwencja.strip().upper()
 
     def __str__(self) -> str:
         """
@@ -58,391 +49,389 @@ class DNASequence:
         Returns:
             str: Sformatowany ciąg zawierający nazwę i sekwencję.
         """
-        return f"Nazwa: {self.name}\nSekwencja: {self.sequence}"
+        return f"Nazwa: {self.nazwa}\nSekwencja: {self.sekwencja}"
 
-    def get_length(self) -> int:
+    def pobierz_dlugosc(self) -> int:
         """
         Oblicza długość sekwencji DNA.
 
         Returns:
             int: Długość sekwencji w nukleotydach.
         """
-        return len(self.sequence)
+        return len(self.sekwencja)
 
-    def calculate_gc_content(self) -> float:
+    def oblicz_zawartosc_gc(self) -> float:
         """
         Oblicza procentową zawartość par G-C w sekwencji.
 
         Returns:
             float: Zawartość GC w procentach. Zwraca 0.0 dla pustej sekwencji.
         """
-        if not self.sequence:
+        if not self.sekwencja:
             return 0.0
-        gc_count = self.sequence.count('G') + self.sequence.count('C')
-        return (gc_count / len(self.sequence)) * 100
+        ilosc_gc = self.sekwencja.count('G') + self.sekwencja.count('C')
+        return (ilosc_gc / len(self.sekwencja)) * 100
 
-    def is_valid(self) -> bool:
+    def jest_poprawna(self) -> bool:
         """
         Sprawdza, czy sekwencja zawiera tylko prawidłowe nukleotydy (A, T, C, G).
 
         Returns:
             bool: True, jeśli sekwencja jest poprawna; False w przeciwnym razie.
         """
-        valid_nucleotides = set("ATCG")
-        return all(char in valid_nucleotides for char in self.sequence)
+        prawidlowe_nukleotydy = set("ATCG")
+        return all(char in prawidlowe_nukleotydy for char in self.sekwencja)
 
-    def get_sequence_type(self) -> str:
+    def pobierz_typ_sekwencji(self) -> str:
         """
         Określa typ sekwencji na podstawie zawartości GC.
 
         Returns:
-            str: "GC-rich" (>60% GC), "AT-rich" (<40% GC) lub "Standard".
+            str: "Bogata_w_GC" (>60% GC), "Bogata_w_AT" (<40% GC) lub "Standardowa".
         """
-        gc_content = self.calculate_gc_content()
-        if gc_content > 60:
-            return "GC-rich"
-        elif gc_content < 40:
-            return "AT-rich"
+        zawartosc_gc = self.oblicz_zawartosc_gc()
+        if zawartosc_gc > 60:
+            return "Bogata_w_GC"
+        elif zawartosc_gc < 40:
+            return "Bogata_w_AT"
         else:
-            return "Standard"
+            return "Standardowa"
 
 
-def generate_random_dna_sequence(
-    length: int, force_invalid_char: bool = False
+def generuj_losowa_sekwencje_dna(
+    dlugosc: int, wymus_niepoprawny_znak: bool = False
 ) -> str:
     """
     Generuje losową sekwencję DNA.
 
     Args:
-        length (int): Pożądana długość sekwencji.
-        force_invalid_char (bool): Jeśli True, gwarantuje, że w sekwencji
-                                   znajdzie się co najmniej jeden nieprawidłowy
-                                   nukleotyd (N, X, Z). Domyślnie False.
+        dlugosc (int): Pożądana długość sekwencji.
+        wymus_niepoprawny_znak (bool): Jeśli True, gwarantuje, że w sekwencji
+                                       znajdzie się co najmniej jeden nieprawidłowy
+                                       nukleotyd (N, X, Z). Domyślnie False.
 
     Returns:
         str: Wygenerowana sekwencja DNA.
     """
-    nucleotides = ['A', 'T', 'C', 'G']
+    nukleotydy = ['A', 'T', 'C', 'G']
 
-    if force_invalid_char:
-        invalid_chars = ['N', 'X', 'Z']
-        if length == 0:
+    if wymus_niepoprawny_znak:
+        niepoprawne_znaki = ['N', 'X', 'Z']
+        if dlugosc == 0:
             return ""
-        insert_pos = random.randint(0, length - 1)
+        pozycja_wstawienia = random.randint(0, dlugosc - 1)
 
-        seq_list = [random.choice(nucleotides) for _ in range(length)]
+        lista_sekwencji = [random.choice(nukleotydy) for _ in range(dlugosc)]
 
-        seq_list[insert_pos] = random.choice(invalid_chars)
-        return ''.join(seq_list)
+        lista_sekwencji[pozycja_wstawienia] = random.choice(niepoprawne_znaki)
+        return ''.join(lista_sekwencji)
     else:
-        if random.random() < PROB_INCLUDE_RANDOM_INVALID_CHAR:
-            nucleotides_with_errors = nucleotides + ['N', 'X', 'Z']
-            return ''.join(random.choice(nucleotides_with_errors)
-                           for _ in range(length))
+        if random.random() < PRAWDOPODOBIENSTWO_LOSOWYCH_NIEPRAWIDLOWYCH_ZNAKOW:
+            nukleotydy_z_bledami = nukleotydy + ['N', 'X', 'Z']
+            return ''.join(random.choice(nukleotydy_z_bledami)
+                           for _ in range(dlugosc))
         else:
-            return ''.join(random.choice(nucleotides) for _ in range(length))
+            return ''.join(random.choice(nukleotydy) for _ in range(dlugosc))
 
 
-def create_fasta_file(
-    filename: str = FASTA_FILENAME,
-    num_total_sequences_to_generate: int = MIN_RANDOM_SEQUENCES
+def utworz_plik_fasta(
+    nazwa_pliku: str = NAZWA_PLIKU_FASTA,
+    liczba_wszystkich_sekwencji_do_wygenerowania: int = MIN_LOSOWYCH_SEKWENCJI
 ):
     """
     Tworzy lub nadpisuje plik FASTA z losowymi sekwencjami DNA,
     w tym z duplikatami i wadliwymi sekwencjami.
 
     Args:
-        filename (str): Nazwa pliku FASTA do utworzenia.
-        num_total_sequences_to_generate (int): Całkowita liczba sekwencji
-                                               do wygenerowania w pliku.
+        nazwa_pliku (str): Nazwa pliku FASTA do utworzenia.
+        liczba_wszystkich_sekwencji_do_wygenerowania (int): Całkowita liczba sekwencji
+                                                           do wygenerowania w pliku.
     """
-    print(f"Tworzę plik '{filename}' z przykładowymi sekwencjami "
-          f"(łącznie {num_total_sequences_to_generate} wpisów)...")
-    with open(filename, 'w') as f:
-        actual_duplicates_to_add = min(NUM_DUPLICATES_TO_ADD,
-                                       num_total_sequences_to_generate // 4)
-        actual_invalid_to_add = min(NUM_INVALID_TO_ADD,
-                                    num_total_sequences_to_generate // 4)
+    print(f"Tworzę plik '{nazwa_pliku}' z przykładowymi sekwencjami "
+          f"(łącznie {liczba_wszystkich_sekwencji_do_wygenerowania} wpisów)...")
+    with open(nazwa_pliku, 'w') as f:
+        faktyczna_liczba_duplikatow_do_dodania = min(LICZBA_DUPLIKATOW_DO_DODANIA,
+                                                     liczba_wszystkich_sekwencji_do_wygenerowania // 4)
+        faktyczna_liczba_niepoprawnych_do_dodania = min(LICZBA_NIEPOPRAWNYCH_DO_DODANIA,
+                                                        liczba_wszystkich_sekwencji_do_wygenerowania // 4)
 
-        duplicate_base_seq_data = None
-        duplicate_base_seq_name_index = -1
+        dane_bazowej_sekwencji_duplikatu = None
+        indeks_nazwy_bazowej_sekwencji_duplikatu = -1
 
-        num_base_sequences = (num_total_sequences_to_generate
-                              - actual_duplicates_to_add
-                              - actual_invalid_to_add)
+        liczba_sekwencji_bazowych = (liczba_wszystkich_sekwencji_do_wygenerowania
+                                     - faktyczna_liczba_duplikatow_do_dodania
+                                     - faktyczna_liczba_niepoprawnych_do_dodania)
 
-        if actual_duplicates_to_add > 0 and num_base_sequences < 1:
-            num_base_sequences = 1
-        if num_base_sequences < 0:
-            num_base_sequences = 0
+        if faktyczna_liczba_duplikatow_do_dodania > 0 and liczba_sekwencji_bazowych < 1:
+            liczba_sekwencji_bazowych = 1
+        if liczba_sekwencji_bazowych < 0:
+            liczba_sekwencji_bazowych = 0
 
-        if actual_duplicates_to_add > 0 and num_base_sequences > 0:
-            duplicate_base_seq_name_index = random.randint(1, num_base_sequences)
-            length_for_duplicate_base = random.randint(MIN_SEQUENCE_LENGTH,
-                                                       MAX_SEQUENCE_LENGTH)
-            duplicate_base_seq_data = generate_random_dna_sequence(
-                length_for_duplicate_base, force_invalid_char=False
+        if faktyczna_liczba_duplikatow_do_dodania > 0 and liczba_sekwencji_bazowych > 0:
+            indeks_nazwy_bazowej_sekwencji_duplikatu = random.randint(1, liczba_sekwencji_bazowych)
+            dlugosc_dla_bazowej_sekwencji_duplikatu = random.randint(MIN_DLUGOSC_SEKWENCJI,
+                                                                      MAX_DLUGOSC_SEKWENCJI)
+            dane_bazowej_sekwencji_duplikatu = generuj_losowa_sekwencje_dna(
+                dlugosc_dla_bazowej_sekwencji_duplikatu, wymus_niepoprawny_znak=False
             )
 
-        base_sequence_counter = 0
-        for i in range(num_base_sequences):
-            base_sequence_counter += 1
-            length = random.randint(MIN_SEQUENCE_LENGTH, MAX_SEQUENCE_LENGTH)
+        licznik_sekwencji_bazowych = 0
+        for i in range(liczba_sekwencji_bazowych):
+            licznik_sekwencji_bazowych += 1
+            dlugosc = random.randint(MIN_DLUGOSC_SEKWENCJI, MAX_DLUGOSC_SEKWENCJI)
 
-            sequence_name = f"Sekwencja_{base_sequence_counter}"
+            nazwa_sekwencji = f"Sekwencja_{licznik_sekwencji_bazowych}"
 
-            if duplicate_base_seq_name_index == base_sequence_counter:
-                sequence_data = duplicate_base_seq_data
+            if indeks_nazwy_bazowej_sekwencji_duplikatu == licznik_sekwencji_bazowych:
+                dane_sekwencji = dane_bazowej_sekwencji_duplikatu
             else:
-                sequence_data = generate_random_dna_sequence(
-                    length, force_invalid_char=False
+                dane_sekwencji = generuj_losowa_sekwencje_dna(
+                    dlugosc, wymus_niepoprawny_znak=False
                 )
 
-            f.write(f">{sequence_name}\n{sequence_data}\n")
+            f.write(f">{nazwa_sekwencji}\n{dane_sekwencji}\n")
 
-        if actual_duplicates_to_add > 0:
-            if duplicate_base_seq_data is None:
-                length_for_duplicate_base = random.randint(MIN_SEQUENCE_LENGTH,
-                                                           MAX_SEQUENCE_LENGTH)
-                duplicate_base_seq_data = generate_random_dna_sequence(
-                    length_for_duplicate_base, force_invalid_char=False
+        if faktyczna_liczba_duplikatow_do_dodania > 0:
+            if dane_bazowej_sekwencji_duplikatu is None:
+                dlugosc_dla_bazowej_sekwencji_duplikatu = random.randint(MIN_DLUGOSC_SEKWENCJI,
+                                                                          MAX_DLUGOSC_SEKWENCJI)
+                dane_bazowej_sekwencji_duplikatu = generuj_losowa_sekwencje_dna(
+                    dlugosc_dla_bazowej_sekwencji_duplikatu, wymus_niepoprawny_znak=False
                 )
-
-                if num_base_sequences == 0:
+                if liczba_sekwencji_bazowych == 0:
                     f.write(f">Sekwencja_Duplikat_Baza\n"
-                            f"{duplicate_base_seq_data}\n")
+                            f"{dane_bazowej_sekwencji_duplikatu}\n")
 
-            for i in range(1, actual_duplicates_to_add + 1):
-                f.write(f">Duplikat_A_{i}\n{duplicate_base_seq_data}\n")
+            for i in range(1, faktyczna_liczba_duplikatow_do_dodania + 1):
+                f.write(f">Duplikat_A_{i}\n{dane_bazowej_sekwencji_duplikatu}\n")
 
-        for i in range(actual_invalid_to_add):
-            length = random.randint(MIN_SEQUENCE_LENGTH, MAX_SEQUENCE_LENGTH)
+        for i in range(faktyczna_liczba_niepoprawnych_do_dodania):
+            dlugosc = random.randint(MIN_DLUGOSC_SEKWENCJI, MAX_DLUGOSC_SEKWENCJI)
             f.write(f">Niepoprawna_{i+1}\n"
-                    f"{generate_random_dna_sequence(length, True)}\n")
+                    f"{generuj_losowa_sekwencje_dna(dlugosc, True)}\n")
 
-    print(f"Plik '{filename}' został utworzony pomyślnie.")
+    print(f"Plik '{nazwa_pliku}' został utworzony pomyślnie.")
 
 
-def read_fasta_file(filename: str) -> dict[str, DNASequence] | None:
+def wczytaj_plik_fasta(nazwa_pliku: str) -> dict[str, SekwencjaDNA] | None:
     """
     Odczytuje sekwencje DNA z pliku FASTA.
 
     Args:
-        filename (str): Nazwa pliku FASTA do odczytania.
+        nazwa_pliku (str): Nazwa pliku FASTA do odczytania.
 
     Returns:
-        dict[str, DNASequence] | None: Słownik zawierający nazwy sekwencji
-        jako klucze i obiekty DNASequence jako wartości. Zwraca None w
+        dict[str, SekwencjaDNA] | None: Słownik zawierający nazwy sekwencji
+        jako klucze i obiekty SekwencjaDNA jako wartości. Zwraca None w
         przypadku krytycznego błędu (np. plik nie istnieje) lub pusty słownik,
         jeśli plik jest pusty lub nie zawiera poprawnych wpisów.
     """
-    sequences = {}
-    current_name = None
-    current_sequence_lines = []
-    line_number = 0
+    sekwencje = {}
+    aktualna_nazwa = None
+    linie_aktualnej_sekwencji = []
+    numer_linii = 0
 
     try:
-        if not os.path.exists(filename):
-            print(f"BŁĄD: Plik '{filename}' nie został znaleziony przed "
+        if not os.path.exists(nazwa_pliku):
+            print(f"BŁĄD: Plik '{nazwa_pliku}' nie został znaleziony przed "
                   "odczytem.")
             return None
 
-        if os.path.getsize(filename) == 0:
-            print(f"OSTRZEŻENIE: Plik '{filename}' jest pusty.")
+        if os.path.getsize(nazwa_pliku) == 0:
+            print(f"OSTRZEŻENIE: Plik '{nazwa_pliku}' jest pusty.")
             return {}
 
-        with open(filename, 'r') as f:
-            for line in f:
-                line_number += 1
-                line = line.strip()
-                if not line:
+        with open(nazwa_pliku, 'r') as f:
+            for linia in f:
+                numer_linii += 1
+                linia = linia.strip()
+                if not linia:
                     continue
 
-                if line.startswith('>'):
-                    if current_name is not None:
-                        if not current_sequence_lines:
+                if linia.startswith('>'):
+                    if aktualna_nazwa is not None:
+                        if not linie_aktualnej_sekwencji:
                             print(f"OSTRZEŻENIE: Brak sekwencji dla nagłówka "
-                                  f"'{current_name}' przed linią "
-                                  f"{line_number}. Pomijam ten wpis.")
+                                  f"'{aktualna_nazwa}' przed linią "
+                                  f"{numer_linii}. Pomijam ten wpis.")
                         else:
-                            sequences[current_name] = DNASequence(
-                                current_name, "".join(current_sequence_lines))
-                    current_name = line[1:]
-                    if not current_name:
+                            sekwencje[aktualna_nazwa] = SekwencjaDNA(
+                                aktualna_nazwa, "".join(linie_aktualnej_sekwencji))
+                    aktualna_nazwa = linia[1:]
+                    if not aktualna_nazwa:
                         print(f"OSTRZEŻENIE: Pusty nagłówek w linii "
-                              f"{line_number}. Ten wpis może zostać pominięty "
+                              f"{numer_linii}. Ten wpis może zostać pominięty "
                               "lub źle zinterpretowany.")
-                    current_sequence_lines = []
+                    linie_aktualnej_sekwencji = []
                 else:
-                    if current_name is None:
+                    if aktualna_nazwa is None:
                         print(f"OSTRZEŻENIE: Znaleziono linię sekwencji bez "
                               "poprzedzającego nagłówka w linii "
-                              f"{line_number}: '{line}'. Pomijam.")
+                              f"{numer_linii}: '{linia}'. Pomijam.")
                         continue
-                    current_sequence_lines.append(line)
+                    linie_aktualnej_sekwencji.append(linia)
 
-            if current_name is not None:
-                if not current_sequence_lines:
+            if aktualna_nazwa is not None:
+                if not linie_aktualnej_sekwencji:
                     print(f"OSTRZEŻENIE: Brak sekwencji dla ostatniego "
-                          f"nagłówka '{current_name}'. Pomijam ten wpis.")
+                          f"nagłówka '{aktualna_nazwa}'. Pomijam ten wpis.")
                 else:
-                    sequences[current_name] = DNASequence(
-                        current_name, "".join(current_sequence_lines))
-            elif not sequences:
-                print(f"OSTRZEŻENIE: Plik '{filename}' nie zawiera żadnych "
+                    sekwencje[aktualna_nazwa] = SekwencjaDNA(
+                        aktualna_nazwa, "".join(linie_aktualnej_sekwencji))
+            elif not sekwencje:
+                print(f"OSTRZEŻENIE: Plik '{nazwa_pliku}' nie zawiera żadnych "
                       "poprawnych wpisów FASTA.")
 
     except FileNotFoundError:
-        print(f"BŁĄD: Plik '{filename}' nie został znaleziony. "
+        print(f"BŁĄD: Plik '{nazwa_pliku}' nie został znaleziony. "
               "Upewnij się, że jest w tym samym katalogu co skrypt.")
         return None
     except Exception as e:
-        print(f"Wystąpił błąd podczas odczytu pliku '{filename}': {e}")
+        print(f"Wystąpił błąd podczas odczytu pliku '{nazwa_pliku}': {e}")
         return None
-    return sequences
+    return sekwencje
 
 
-def add_user_sequence(
-    sequences_dict: dict[str, DNASequence], filename: str = FASTA_FILENAME
-) -> dict[str, DNASequence]:
+def dodaj_sekwencje_uzytkownika(
+    slownik_sekwencji: dict[str, SekwencjaDNA], nazwa_pliku: str = NAZWA_PLIKU_FASTA
+) -> dict[str, SekwencjaDNA]:
     """
     Prosi użytkownika o podanie własnej sekwencji DNA i dodaje ją
     do pamięci programu oraz do pliku FASTA.
 
     Args:
-        sequences_dict (dict): Słownik istniejących sekwencji DNA.
-        filename (str): Nazwa pliku FASTA, do którego ma być dopisana sekwencja.
+        slownik_sekwencji (dict): Słownik istniejących sekwencji DNA.
+        nazwa_pliku (str): Nazwa pliku FASTA, do którego ma być dopisana sekwencja.
 
     Returns:
-        dict[str, DNASequence]: Zaktualizowany słownik sekwencji DNA.
+        dict[str, SekwencjaDNA]: Zaktualizowany słownik sekwencji DNA.
     """
     print("\n--- Dodaj swoją sekwencję ---")
-    name = input("Podaj nazwę dla Twojej sekwencji (np. Moja_Sekwencja): ").strip()
-    if not name:
+    nazwa = input("Podaj nazwę dla Twojej sekwencji (np. Moja_Sekwencja): ").strip()
+    if not nazwa:
         print("Nazwa sekwencji nie może być pusta. Anulowano dodawanie "
               "sekwencji.")
-        return sequences_dict
+        return slownik_sekwencji
 
-    sequence_data = input("Wklej sekwencję DNA (tylko A, T, C, G): ").strip().upper()
+    dane_sekwencji = input("Wklej sekwencję DNA (tylko A, T, C, G): ").strip().upper()
 
-    if not sequence_data:
+    if not dane_sekwencji:
         print("Sekwencja nie może być pusta. Anulowano dodawanie sekwencji.")
-        return sequences_dict
+        return slownik_sekwencji
 
-    temp_seq_obj = DNASequence(name, sequence_data)
-    if not temp_seq_obj.is_valid():
+    tymczasowy_obiekt_sekwencji = SekwencjaDNA(nazwa, dane_sekwencji)
+    if not tymczasowy_obiekt_sekwencji.jest_poprawna():
         print("UWAGA: Twoja sekwencja zawiera nieprawidłowe znaki. Zostanie "
               "oznaczona jako niepoprawna.")
 
-    if name in sequences_dict:
-        print(f"UWAGA: Sekwencja o nazwie '{name}' już istnieje w pamięci. "
+    if nazwa in slownik_sekwencji:
+        print(f"UWAGA: Sekwencja o nazwie '{nazwa}' już istnieje w pamięci. "
               "Zostanie nadpisana.")
 
-    sequences_dict[name] = temp_seq_obj
-    print(f"Sekwencja '{name}' została dodana do pamięci programu.")
+    slownik_sekwencji[nazwa] = tymczasowy_obiekt_sekwencji
+    print(f"Sekwencja '{nazwa}' została dodana do pamięci programu.")
 
     try:
-        with open(filename, 'a') as f:
-            f.write(f">{name}\n{sequence_data}\n")
-        print(f"Sekwencja '{name}' została trwale dopisana do pliku "
-              f"'{filename}'.")
+        with open(nazwa_pliku, 'a') as f:
+            f.write(f">{nazwa}\n{dane_sekwencji}\n")
+        print(f"Sekwencja '{nazwa}' została trwale dopisana do pliku "
+              f"'{nazwa_pliku}'.")
     except IOError as e:
-        print(f"BŁĄD: Nie udało się zapisać sekwencji do pliku '{filename}': "
+        print(f"BŁĄD: Nie udało się zapisać sekwencji do pliku '{nazwa_pliku}': "
               f"{e}")
     except Exception as e:
         print(f"Wystąpił nieoczekiwany błąd podczas zapisu do pliku: {e}")
 
-    return sequences_dict
+    return slownik_sekwencji
 
 
-def display_sequence_info(seq_object: DNASequence):
+def wyswietl_info_o_sekwencji(obiekt_sekwencji: SekwencjaDNA):
     """
     Wyświetla szczegółowe informacje o pojedynczej sekwencji DNA.
 
     Args:
-        seq_object (DNASequence): Obiekt sekwencji DNA do wyświetlenia.
+        obiekt_sekwencji (SekwencjaDNA): Obiekt sekwencji DNA do wyświetlenia.
     """
-    print(f"\n--- Informacje o sekwencji: {seq_object.name} ---")
-    print(f"  Długość: {seq_object.get_length()} nukleotydów")
-    print(f"  Zawartość GC: {seq_object.calculate_gc_content():.2f}%")
-    print(f"  Poprawna: {'Tak' if seq_object.is_valid() else 'Nie (zawiera niepoprawne nukleotydy)'}")
-    print(f"  Typ: {seq_object.get_sequence_type()}")
-    print(f"  Sekwencja (pierwsze 30 znaków): {seq_object.sequence[:30]}...")
+    print(f"\n--- Informacje o sekwencji: {obiekt_sekwencji.nazwa} ---")
+    print(f"  Długość: {obiekt_sekwencji.pobierz_dlugosc()} nukleotydów")
+    print(f"  Zawartość GC: {obiekt_sekwencji.oblicz_zawartosc_gc():.2f}%")
+    print(f"  Poprawna: {'Tak' if obiekt_sekwencji.jest_poprawna() else 'Nie (zawiera niepoprawne nukleotydy)'}")
+    print(f"  Typ: {obiekt_sekwencji.pobierz_typ_sekwencji()}")
+    print(f"  Sekwencja (pierwsze 30 znaków): {obiekt_sekwencji.sekwencja[:30]}...")
 
 
-def process_sequences(
-    sequences_dict: dict[str, DNASequence]
+def przetworz_sekwencje(
+    slownik_sekwencji: dict[str, SekwencjaDNA]
 ) -> pd.DataFrame:
     """
     Przetwarza sekwencje DNA, usuwając wadliwe i zduplikowane wpisy,
     a następnie konwertuje pozostałe dane do DataFrame.
 
     Args:
-        sequences_dict (dict): Słownik sekwencji DNA do przetworzenia.
+        slownik_sekwencji (dict): Słownik sekwencji DNA do przetworzenia.
 
     Returns:
         pd.DataFrame: DataFrame zawierający oczyszczone i przetworzone
                       sekwencje. Pusty DataFrame, jeśli nie ma danych
                       do przetworzenia.
     """
-    if not sequences_dict:
+    if not slownik_sekwencji:
         print("Brak sekwencji do przetworzenia.")
         return pd.DataFrame()
 
     print("\n--- Przetwarzanie sekwencji ---")
-    processed_data = []
-    seen_sequences_content = set()
-    initial_count = len(sequences_dict)
-    removed_duplicates = 0
-    removed_invalid = 0
+    przetworzone_dane = []
+    widziane_tresci_sekwencji = set()
+    poczatkowa_liczba = len(slownik_sekwencji)
+    usunietych_duplikatow = 0
+    usunietych_niepoprawnych = 0
 
-    for name, seq_obj in sequences_dict.items():
-        if not seq_obj.is_valid():
-            print(f"  Usuwam wadliwą sekwencję: {name} "
+    for nazwa, obiekt_sekwencji in slownik_sekwencji.items():
+        if not obiekt_sekwencji.jest_poprawna():
+            print(f"  Usuwam wadliwą sekwencję: {nazwa} "
                   "(zawiera niepoprawne nukleotydy)")
-            removed_invalid += 1
+            usunietych_niepoprawnych += 1
             continue
 
-        if seq_obj.sequence in seen_sequences_content:
-            print(f"  Usuwam duplikat: {name} (treść sekwencji już istnieje)")
-            removed_duplicates += 1
+        if obiekt_sekwencji.sekwencja in widziane_tresci_sekwencji:
+            print(f"  Usuwam duplikat: {nazwa} (treść sekwencji już istnieje)")
+            usunietych_duplikatow += 1
             continue
 
-        seen_sequences_content.add(seq_obj.sequence)
-        processed_data.append({
-            "Nazwa": seq_obj.name,
-            "Sekwencja": seq_obj.sequence,
-            "Dlugosc": seq_obj.get_length(),
-            "GC_Zawartosc": seq_obj.calculate_gc_content(),
-            "Typ_Sekwencji": seq_obj.get_sequence_type()
+        widziane_tresci_sekwencji.add(obiekt_sekwencji.sekwencja)
+        przetworzone_dane.append({
+            "Nazwa": obiekt_sekwencji.nazwa,
+            "Sekwencja": obiekt_sekwencji.sekwencja,
+            "Dlugosc": obiekt_sekwencji.pobierz_dlugosc(),
+            "Zawartosc_GC": obiekt_sekwencji.oblicz_zawartosc_gc(),
+            "Typ_Sekwencji": obiekt_sekwencji.pobierz_typ_sekwencji()
         })
 
-    print(f"  Usunięto duplikatów: {removed_duplicates}")
-    print(f"  Usunięto wadliwych sekwencji: {removed_invalid}")
-    print(f"  Pozostało sekwencji po oczyszczeniu: {len(processed_data)} "
-          f"z {initial_count} początkowych.")
+    print(f"  Usunięto duplikatów: {usunietych_duplikatow}")
+    print(f"  Usunięto wadliwych sekwencji: {usunietych_niepoprawnych}")
+    print(f"  Pozostało sekwencji po oczyszczeniu: {len(przetworzone_dane)} "
+          f"z {poczatkowa_liczba} początkowych.")
 
-    data_frame = pd.DataFrame(processed_data)
-    return data_frame
+    tabela_danych = pd.DataFrame(przetworzone_dane)
+    return tabela_danych
 
 
-def visualize_data(dataframe: pd.DataFrame):
+def wizualizuj_dane(tabela_danych: pd.DataFrame):
     """
     Generuje i wyświetla różne wizualizacje danych z DataFrame.
 
     Args:
-        dataframe (pd.DataFrame): DataFrame zawierający przetworzone dane
-                                  sekwencji DNA.
+        tabela_danych (pd.DataFrame): DataFrame zawierający przetworzone dane
+                                      sekwencji DNA.
     """
-    if dataframe.empty:
+    if tabela_danych.empty:
         print("Brak danych do wizualizacji.")
         return
 
     print("\n--- Tworzenie wizualizacji ---")
 
-    # Wykres 1: Rozkład długości sekwencji
     plt.figure(figsize=(10, 6))
-    plt.hist(dataframe['Dlugosc'], bins=10, edgecolor='black')
+    plt.hist(tabela_danych['Dlugosc'], bins=10, edgecolor='black')
     plt.title('Rozkład długości sekwencji DNA')
     plt.xlabel('Długość sekwencji (nukleotydy)')
     plt.ylabel('Liczba sekwencji')
@@ -450,9 +439,8 @@ def visualize_data(dataframe: pd.DataFrame):
     plt.tight_layout()
     plt.show()
 
-    # Wykres 2: Rozkład zawartości GC
     plt.figure(figsize=(10, 6))
-    plt.hist(dataframe['GC_Zawartosc'], bins=10,
+    plt.hist(tabela_danych['Zawartosc_GC'], bins=10,
              edgecolor='black', color='lightgreen')
     plt.title('Rozkład zawartości GC w sekwencjach DNA')
     plt.xlabel('Zawartość GC (%)')
@@ -461,9 +449,8 @@ def visualize_data(dataframe: pd.DataFrame):
     plt.tight_layout()
     plt.show()
 
-    # Wykres 3: Długość sekwencji vs. Zawartość GC (scatter plot)
     plt.figure(figsize=(10, 6))
-    plt.scatter(dataframe['Dlugosc'], dataframe['GC_Zawartosc'],
+    plt.scatter(tabela_danych['Dlugosc'], tabela_danych['Zawartosc_GC'],
                 alpha=0.7, color='skyblue')
     plt.title('Długość sekwencji vs. Zawartość GC')
     plt.xlabel('Długość sekwencji (nukleotydy)')
@@ -472,9 +459,8 @@ def visualize_data(dataframe: pd.DataFrame):
     plt.tight_layout()
     plt.show()
 
-    # Wykres 4: Liczba sekwencji według typu (bar plot)
     plt.figure(figsize=(8, 5))
-    dataframe['Typ_Sekwencji'].value_counts().plot(
+    tabela_danych['Typ_Sekwencji'].value_counts().plot(
         kind='bar', color=['purple', 'orange', 'cyan'])
     plt.title('Liczba sekwencji według typu')
     plt.xlabel('Typ sekwencji')
@@ -485,105 +471,104 @@ def visualize_data(dataframe: pd.DataFrame):
     plt.show()
 
 
-def main():
+def glowna_funkcja():
     """
     Główna funkcja programu, orkiestrująca całym procesem:
     generowaniem pliku, odczytem, przetwarzaniem, wizualizacją
     i interakcją z użytkownikiem.
     """
-    target_num_sequences_for_file = random.randint(MIN_RANDOM_SEQUENCES,
-                                                   MAX_RANDOM_SEQUENCES)
+    docelowa_liczba_sekwencji_do_pliku = random.randint(MIN_LOSOWYCH_SEKWENCJI,
+                                                        MAX_LOSOWYCH_SEKWENCJI)
 
-    if not os.path.exists(FASTA_FILENAME):
-        create_fasta_file(FASTA_FILENAME,
-                          num_total_sequences_to_generate=
-                          target_num_sequences_for_file)
-        print(f"Plik '{FASTA_FILENAME}' nie istniał, został utworzony "
+    if not os.path.exists(NAZWA_PLIKU_FASTA):
+        utworz_plik_fasta(NAZWA_PLIKU_FASTA,
+                          liczba_wszystkich_sekwencji_do_wygenerowania=
+                          docelowa_liczba_sekwencji_do_pliku)
+        print(f"Plik '{NAZWA_PLIKU_FASTA}' nie istniał, został utworzony "
               "z losową liczbą sekwencji "
-              f"({target_num_sequences_for_file}).")
+              f"({docelowa_liczba_sekwencji_do_pliku}).")
 
     while True:
-        all_sequences_dict = read_fasta_file(FASTA_FILENAME)
+        wszystkie_sekwencje_slownik = wczytaj_plik_fasta(NAZWA_PLIKU_FASTA)
 
-        if all_sequences_dict is None:
+        if wszystkie_sekwencje_slownik is None:
             print("Nie można kontynuować z powodu krytycznego błędu odczytu "
                   "pliku. Zakończono program.")
             return
 
-        num_entries_in_file = len(all_sequences_dict)
+        liczba_wpisow_w_pliku = len(wszystkie_sekwencje_slownik)
 
-        if (num_entries_in_file < REQUIRED_MIN_SEQUENCES_FOR_MESSAGE
-                or num_entries_in_file > MAX_RANDOM_SEQUENCES):
-            print(f"\nOSTRZEŻENIE: Plik '{FASTA_FILENAME}' zawiera "
-                  f"{num_entries_in_file} sekwencji. Wymagane minimum to "
-                  f"{REQUIRED_MIN_SEQUENCES_FOR_MESSAGE} sekwencji.")
+        if (liczba_wpisow_w_pliku < WYMAGANE_MIN_SEKWENCJI_DLA_OSTRZEZENIA
+                or liczba_wpisow_w_pliku > MAX_LOSOWYCH_SEKWENCJI):
+            print(f"\nOSTRZEŻENIE: Plik '{NAZWA_PLIKU_FASTA}' zawiera "
+                  f"{liczba_wpisow_w_pliku} sekwencji. Wymagane minimum to "
+                  f"{WYMAGANE_MIN_SEKWENCJI_DLA_OSTRZEZENIA} sekwencji.")
         else:
-            print(f"\nPlik '{FASTA_FILENAME}' zawiera {num_entries_in_file} "
+            print(f"\nPlik '{NAZWA_PLIKU_FASTA}' zawiera {liczba_wpisow_w_pliku} "
                   "sekwencji. Spełnia wymagane minimum "
-                  f"{REQUIRED_MIN_SEQUENCES_FOR_MESSAGE} sekwencji.")
+                  f"{WYMAGANE_MIN_SEKWENCJI_DLA_OSTRZEZENIA} sekwencji.")
 
-        user_choice = input("Czy chcesz nadpisać obecny plik i wygenerować "
-                            "nowe sekwencje z losową liczbą? (tak/nie): ").lower()
-        if user_choice == 'tak':
-            target_num_sequences_for_file = random.randint(
-                MIN_RANDOM_SEQUENCES, MAX_RANDOM_SEQUENCES)
-            create_fasta_file(FASTA_FILENAME,
-                              num_total_sequences_to_generate=
-                              target_num_sequences_for_file)
+        wybor_uzytkownika = input("Czy chcesz nadpisać obecny plik i wygenerować "
+                                  "nowe sekwencje z losową liczbą? (tak/nie): ").lower()
+        if wybor_uzytkownika == 'tak':
+            docelowa_liczba_sekwencji_do_pliku = random.randint(
+                MIN_LOSOWYCH_SEKWENCJI, MAX_LOSOWYCH_SEKWENCJI)
+            utworz_plik_fasta(NAZWA_PLIKU_FASTA,
+                              liczba_wszystkich_sekwencji_do_wygenerowania=
+                              docelowa_liczba_sekwencji_do_pliku)
             continue
         else:
             print(f"Kontynuuję pracę z obecnym stanem pliku "
-                  f"({num_entries_in_file} sekwencji).")
+                  f"({liczba_wpisow_w_pliku} sekwencji).")
             break
 
     print("\n--- Odczytano sekwencje z pliku ---")
-    if all_sequences_dict:
-        for name, seq_obj in \
-                list(all_sequences_dict.items())[:DISPLAY_INITIAL_SEQUENCES_COUNT]:
-            print(f"  {name}: {seq_obj.get_length()} nt, "
-                  f"GC: {seq_obj.calculate_gc_content():.2f}%")
-        if len(all_sequences_dict) > DISPLAY_INITIAL_SEQUENCES_COUNT:
+    if wszystkie_sekwencje_slownik:
+        for nazwa, obiekt_sekwencji in \
+                list(wszystkie_sekwencje_slownik.items())[:LICZBA_WYSWIETLANYCH_POCZATKOWYCH_SEKWENCJI]:
+            print(f"  {nazwa}: {obiekt_sekwencji.pobierz_dlugosc()} nt, "
+                  f"GC: {obiekt_sekwencji.oblicz_zawartosc_gc():.2f}%")
+        if len(wszystkie_sekwencje_slownik) > LICZBA_WYSWIETLANYCH_POCZATKOWYCH_SEKWENCJI:
             print(f"  ...i jeszcze "
-                  f"{len(all_sequences_dict) - DISPLAY_INITIAL_SEQUENCES_COUNT} "
+                  f"{len(wszystkie_sekwencje_slownik) - LICZBA_WYSWIETLANYCH_POCZATKOWYCH_SEKWENCJI} "
                   "innych sekwencji.")
     else:
         print("Brak sekwencji do wyświetlenia z pliku.")
 
-    add_more = input("\nCzy chcesz dodać własną sekwencję? (tak/nie): ").lower()
-    if add_more == 'tak':
-        all_sequences_dict = add_user_sequence(all_sequences_dict,
-                                               FASTA_FILENAME)
+    dodaj_wiecej = input("\nCzy chcesz dodać własną sekwencję? (tak/nie): ").lower()
+    if dodaj_wiecej == 'tak':
+        wszystkie_sekwencje_slownik = dodaj_sekwencje_uzytkownika(wszystkie_sekwencje_slownik,
+                                                                  NAZWA_PLIKU_FASTA)
 
     print("\n--- Wyświetlam informacje o kilku sekwencjach (przed czyszczeniem) ---")
-    if all_sequences_dict:
-        count = 0
-        for name, seq_obj in all_sequences_dict.items():
-            display_sequence_info(seq_obj)
-            count += 1
-            if count >= DISPLAY_USER_INFO_SEQUENCES_COUNT:
+    if wszystkie_sekwencje_slownik:
+        licznik = 0
+        for nazwa, obiekt_sekwencji in wszystkie_sekwencje_slownik.items():
+            wyswietl_info_o_sekwencji(obiekt_sekwencji)
+            licznik += 1
+            if licznik >= LICZBA_WYSWIETLANYCH_INFO_SEKWENCJI_OD_UZYTKOWNIKA:
                 break
     else:
         print("Brak sekwencji do wyświetlenia informacji.")
 
-    cleaned_df = process_sequences(all_sequences_dict)
+    wyczyszczona_tabela_danych = przetworz_sekwencje(wszystkie_sekwencje_slownik)
 
-    # Wyświetlenie końcowego DataFrame
-    if not cleaned_df.empty:
-        print("\n--- Ostateczny DataFrame z czystymi sekwencjami ---")
+    if not wyczyszczona_tabela_danych.empty:
+        print("\n--- Ostateczna Tabela Danych z czystymi sekwencjami ---")
         pd.set_option('display.max_rows', None)
         pd.set_option('display.max_columns', None)
         pd.set_option('display.width', 1000)
-        print(cleaned_df)
+        print(wyczyszczona_tabela_danych)
         pd.reset_option('display.max_rows')
         pd.reset_option('display.max_columns')
         pd.reset_option('display.width')
     else:
-        print("DataFrame jest pusty po czyszczeniu.")
+        print("Tabela Danych jest pusta po czyszczeniu.")
 
-    visualize_data(cleaned_df)
+    wizualizuj_dane(wyczyszczona_tabela_danych)
 
     print("\nProgram zakończył działanie. Miłego dnia!")
 
 
 if __name__ == "__main__":
-    main()
+    glowna_funkcja()
