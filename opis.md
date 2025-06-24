@@ -90,23 +90,3 @@ Co ten program robi?
         Każda kropka to jeden przepis.
     * **Wykres 4 (Typy przepisów):** Pokazuje, ile mamy przepisów typu
         "GC-rich" (dużo G i C), "AT-rich" (mało G i C) i "Standard".
-
-Na koniec program podziękuje Ci za wspólną pracę.
-
-**Jak to wszystko działa (dla ciekawskich, trochę bardziej szczegółowo):**
-
-* **Sekwencje DNA to literki:** W programie DNA to po prostu ciąg liter: A, T, C, G.
-* **Magazyn na przepisy:** Program używa czegoś, co w informatyce nazywamy "słownikiem".
-    To jak specjalna szafka, gdzie każda szuflada ma etykietkę (nazwę przepisu),
-    a w środku jest cały przepis (obiekt DNASequence ze swoimi danymi).
-* **Obiekty DNASequence:** Każdy przepis to nie tylko literki, ale też taki
-    specjalny "obiekt" w programie, który wie, ile ma długości, ile ma G i C,
-    i czy jest poprawny. To tak, jakby każda szuflada w naszej szafce
-    zawierała inteligentną kartę z wszystkimi informacjami o przepisie.
-* **Tabela Wyników (DataFrame):** To jak arkusz kalkulacyjny w Excelu,
-    ale używany w programie. Bardzo ułatwia analizę i tworzenie wykresów.
-* **Rysowanie wykresów (Matplotlib):** Program używa specjalnej "farby"
-    (biblioteki Matplotlib), żeby narysować te wszystkie fajne obrazki
-    z danych.
-
-Mam nadzieję, że ten opis pomoże Ci zrozumieć, jak działa nasza "fabryka DNA"!
