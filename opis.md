@@ -1,10 +1,3 @@
-OPIS PROGRAMU DO ANALIZY SEKWEJCI DNA
-
-Witajcie! Ten program to taka nasza mała "fabryka DNA".
-Pomaga nam zrozumieć i uporządkować tajemnicze "przepisy" życia,
-czyli sekwencje DNA. Wyobraź sobie, że DNA to taka długa,
-skomplikowana książka kucharska, a każda sekwencja to jeden przepis.
-
 Co ten program robi?
 
 1.  **Tworzy magiczną książkę przepisów (plik FASTA):**
